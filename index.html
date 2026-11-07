@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<!-- Home-screen launcher for צוות קרצו: gives the phone a real icon and name, then forwards to the Apps Script app.
+     Opened with ?install it shows the add-to-home-screen steps instead. No standalone mode on purpose:
+     the icon opens in the normal browser, so the Google sign-in is shared and nobody has to log in again. -->
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>צוות קרצו</title>
+<meta name="apple-mobile-web-app-title" content="צוות קרצו">
+<meta name="theme-color" content="#36421f">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<script>
+  var APP = 'https://script.google.com/macros/s/AKfycbzU8M14EkSo9p01-b0xJKBCcEAYcii4FsV5UmjMt4F5aMfwDqCRP9sppESvXpyWaFnk/exec';
+  var install = /[?&]install\b/.test(location.search);
+  // The saved shortcut is the address shown now, so drop ?install before the user adds it.
+  if (install) history.replaceState(null, '', location.pathname);
+  else location.replace(APP);
+</script>
+<style>
+  body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: #f3eee2; color: #26261f; }
+  header { background: #36421f; color: #fff; text-align: center; padding: 22px 16px 18px; }
+  header img { width: 84px; height: 84px; border-radius: 18px; }
+  header h1 { margin: 10px 0 0; font-size: 24px; }
+  main { max-width: 480px; margin: 0 auto; padding: 18px 16px 32px; }
+  .card { background: #fffdf8; border-radius: 12px; padding: 16px 18px; box-shadow: 0 2px 10px rgba(0,0,0,.08); margin-bottom: 14px; }
+  h2 { margin: 0 0 10px; font-size: 18px; color: #36421f; }
+  ol { margin: 0; padding-right: 22px; line-height: 1.9; font-size: 16px; }
+  .key { display: inline-block; padding: 0 8px; border: 1px solid #c9c2ad; border-radius: 6px; background: #fff; font-weight: bold; }
+  .note { color: #75705f; font-size: 14px; line-height: 1.6; }
+  a.btn { display: block; text-align: center; background: #4a5a2c; color: #fff; text-decoration: none; font-weight: bold; padding: 14px; border-radius: 26px; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<header><img src="icon-180.png" alt=""><h1>צוות קרצו</h1></header>
+<main>
+  <noscript><a class="btn" href="https://script.google.com/macros/s/AKfycbzU8M14EkSo9p01-b0xJKBCcEAYcii4FsV5UmjMt4F5aMfwDqCRP9sppESvXpyWaFnk/exec">כניסה למערכת</a></noscript>
+  <div id="steps" class="hidden">
+    <div class="card" id="ios">
+      <h2>הוספה למסך הבית באייפון</h2>
+      <ol>
+        <li>לוחצים על כפתור השיתוף <span class="key">⬆︎</span> (בתחתית Safari, או בראש המסך ב-Chrome).</li>
+        <li>גוללים ובוחרים <b>"הוסף למסך הבית"</b>.</li>
+        <li>לוחצים <b>"הוסף"</b> – הסמל של צוות קרצו יופיע במסך הבית.</li>
+      </ol>
+    </div>
+    <div class="card" id="android">
+      <h2>הוספה למסך הבית באנדרואיד</h2>
+      <ol>
+        <li>לוחצים על התפריט <span class="key">⋮</span> בפינת Chrome.</li>
+        <li>בוחרים <b>"הוספה למסך הבית"</b>.</li>
+        <li>לוחצים <b>"הוספה"</b> – הסמל של צוות קרצו יופיע במסך הבית.</li>
+      </ol>
+    </div>
+    <p class="note">הסמל פותח את המערכת ישירות, עם אותו חשבון Google שכבר מחובר בטלפון.</p>
+    <a class="btn" id="go">כניסה למערכת</a>
+  </div>
+</main>
+<script>
+  if (install) {
+    var ua = navigator.userAgent;
+    var ios = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    var android = /Android/.test(ua);
+    // On a phone show only its own steps; elsewhere show both.
+    if (ios) document.getElementById('android').className += ' hidden';
+    if (android) document.getElementById('ios').className += ' hidden';
+    document.getElementById('go').href = APP;
+    document.getElementById('steps').className = '';
+  }
+</script>
+</body>
+</html>
