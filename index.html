@@ -34,7 +34,7 @@
   }
   // The saved shortcut is the address shown now, so drop ?install before the user adds it.
   if (install) history.replaceState(null, '', location.pathname);
-  else location.replace(APP);
+  else location.replace(APP + '?src=home');  // tells the app it was opened from the icon
 </script>
 <style>
   body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: #f3eee2; color: #26261f; }
