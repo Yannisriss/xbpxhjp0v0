@@ -12,10 +12,26 @@
 <meta name="theme-color" content="#36421f">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
-<link rel="manifest" href="manifest.json">
 <script>
   var APP = 'https://script.google.com/macros/s/AKfycbzU8M14EkSo9p01-b0xJKBCcEAYcii4FsV5UmjMt4F5aMfwDqCRP9sppESvXpyWaFnk/exec';
   var install = /[?&]install\b/.test(location.search);
+  var android = /Android/.test(navigator.userAgent);
+  // Android only: the manifest + service worker make Chrome offer a one-tap install (no hunting through its menu).
+  // iPhone must not see the manifest, or it opens as a separate app with its own sign-in.
+  var deferred = null;
+  if (android) {
+    var m = document.createElement('link');
+    m.rel = 'manifest';
+    m.href = 'manifest.json';
+    document.head.appendChild(m);
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+    addEventListener('beforeinstallprompt', function (e) {
+      e.preventDefault();
+      deferred = e;
+      var b = document.getElementById('install');
+      if (b) b.className = 'btn';
+    });
+  }
   // The saved shortcut is the address shown now, so drop ?install before the user adds it.
   if (install) history.replaceState(null, '', location.pathname);
   else location.replace(APP);
@@ -31,8 +47,9 @@
   ol { margin: 0; padding-right: 22px; line-height: 1.9; font-size: 16px; }
   .key { display: inline-block; padding: 0 8px; border: 1px solid #c9c2ad; border-radius: 6px; background: #fff; font-weight: bold; }
   .note { color: #75705f; font-size: 14px; line-height: 1.6; }
-  a.btn { display: block; text-align: center; background: #4a5a2c; color: #fff; text-decoration: none; font-weight: bold; padding: 14px; border-radius: 26px; }
-  .hidden { display: none; }
+  button.btn { width: 100%; border: 0; font: inherit; font-size: 17px; margin-bottom: 10px; cursor: pointer; }
+  a.btn, button.btn { display: block; text-align: center; background: #4a5a2c; color: #fff; text-decoration: none; font-weight: bold; padding: 14px; border-radius: 26px; }
+  .hidden { display: none !important; }
 </style>
 </head>
 <body>
@@ -50,10 +67,13 @@
     </div>
     <div class="card" id="android">
       <h2>הוספה למסך הבית באנדרואיד</h2>
+      <button class="btn hidden" id="install" type="button">📲 התקנה במסך הבית</button>
+      <p class="note" id="manual-title">אם אין כפתור התקנה, מוסיפים ידנית:</p>
       <ol>
-        <li>לוחצים על התפריט <span class="key">⋮</span> בפינת Chrome.</li>
-        <li>בוחרים <b>"הוספה למסך הבית"</b>.</li>
-        <li>לוחצים <b>"הוספה"</b> – הסמל של צוות קרצו יופיע במסך הבית.</li>
+        <li><b>ב-Chrome:</b> לוחצים על <span class="key">⋮</span> בפינה העליונה ובוחרים
+          <b>"התקנה ויצירת קיצור דרך"</b> (Install and create shortcut). בגרסאות ישנות השם הוא <b>"הוספה למסך הבית"</b> או <b>"התקנת האפליקציה"</b>.</li>
+        <li><b>בדפדפן של סמסונג:</b> לוחצים על <span class="key">≡</span> בתחתית, בוחרים <b>"הוספת דף אל"</b> ואז <b>"מסך הבית"</b>.</li>
+        <li>מאשרים – הסמל של צוות קרצו יופיע במסך הבית.</li>
       </ol>
     </div>
     <p class="note">הסמל פותח את המערכת ישירות, עם אותו חשבון Google שכבר מחובר בטלפון.</p>
@@ -69,6 +89,13 @@
     if (ios) document.getElementById('android').className += ' hidden';
     if (android) document.getElementById('ios').className += ' hidden';
     document.getElementById('go').href = APP;
+    document.getElementById('install').onclick = function () {
+      if (!deferred) return;
+      deferred.prompt();
+      deferred.userChoice.then(function (c) { if (c.outcome === 'accepted') document.getElementById('install').textContent = 'הותקן ✓'; });
+      deferred = null;
+    };
+    if (deferred) document.getElementById('install').className = 'btn';
     document.getElementById('steps').className = '';
   }
 </script>
