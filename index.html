@@ -76,7 +76,16 @@
         <li>מאשרים – הסמל של צוות קרצו יופיע במסך הבית.</li>
       </ol>
     </div>
-    <p class="note">הסמל פותח את המערכת ישירות, עם אותו חשבון Google שכבר מחובר בטלפון.</p>
+    <div class="card" id="desktop">
+      <h2>שמירה במחשב</h2>
+      <ol>
+        <li><b>סימנייה (בכל דפדפן):</b> במחשב Windows לוחצים <span dir="ltr"><span class="key">Ctrl</span> + <span class="key">D</span></span>,
+          במק לוחצים <span dir="ltr"><span class="key">⌘</span> + <span class="key">D</span></span>, ומאשרים.</li>
+        <li><b>במק עם Safari:</b> בתפריט <b><bdi>"קובץ"</bdi></b> <bdi dir="ltr">(File)</bdi> בוחרים
+          <b><bdi>"הוספה ל־Dock"</bdi></b> <bdi dir="ltr">(Add to Dock)</bdi> – והסמל יופיע ב־Dock.</li>
+      </ol>
+    </div>
+    <p class="note">הסמל פותח את המערכת ישירות, עם אותו חשבון Google שכבר מחובר במכשיר.</p>
     <a class="btn" id="go">כניסה למערכת</a>
   </div>
 </main>
@@ -85,9 +94,10 @@
     var ua = navigator.userAgent;
     var ios = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     var android = /Android/.test(ua);
-    // On a phone show only its own steps; elsewhere show both.
-    if (ios) document.getElementById('android').className += ' hidden';
-    if (android) document.getElementById('ios').className += ' hidden';
+    // Each device sees only its own steps.
+    ['ios', 'android', 'desktop'].forEach(function (id) {
+      if (id !== (ios ? 'ios' : android ? 'android' : 'desktop')) document.getElementById(id).className += ' hidden';
+    });
     document.getElementById('go').href = APP;
     document.getElementById('install').onclick = function () {
       if (!deferred) return;
