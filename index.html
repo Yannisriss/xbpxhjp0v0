@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!-- Home-screen launcher for צוות קרצו: gives the phone a real icon and name, then forwards to the Apps Script app.
-     Opened with ?install it shows the add-to-home-screen steps instead. No standalone mode on purpose:
-     the icon opens in the normal browser, so the Google sign-in is shared and nobody has to log in again. -->
+     Opened with ?install it shows the add-to-home-screen steps instead. The personal-link key (?k=) rides along in the
+     saved address, and is remembered here too for Android installs that open the bare start page. -->
 <html lang="he" dir="rtl">
 <head>
 <meta charset="utf-8">
@@ -15,6 +15,9 @@
 <script>
   var APP = 'https://script.google.com/macros/s/AKfycbzU8M14EkSo9p01-b0xJKBCcEAYcii4FsV5UmjMt4F5aMfwDqCRP9sppESvXpyWaFnk/exec';
   var install = /[?&]install\b/.test(location.search);
+  var key = (/[?&]k=([0-9a-f]{64})\b/.exec(location.search) || [])[1] || '';
+  try { if (key) localStorage.setItem('k', key); else key = localStorage.getItem('k') || ''; } catch (e) {}
+  var APP_LINK = APP + (key ? '?k=' + key : '');
   var android = /Android/.test(navigator.userAgent);
   // Android only: the manifest + service worker make Chrome offer a one-tap install (no hunting through its menu).
   // iPhone must not see the manifest, or it opens as a separate app with its own sign-in.
@@ -32,9 +35,9 @@
       if (b) b.className = 'btn';
     });
   }
-  // The saved shortcut is the address shown now, so drop ?install before the user adds it.
-  if (install) history.replaceState(null, '', location.pathname);
-  else location.replace(APP + '?src=home');  // tells the app it was opened from the icon
+  // The saved shortcut is the address shown now, so drop ?install (keeping the key) before the user adds it.
+  if (install) history.replaceState(null, '', location.pathname + (key ? '?k=' + key : ''));
+  else location.replace(APP_LINK + (key ? '&' : '?') + 'src=home');  // src=home tells the app it was opened from the icon
 </script>
 <style>
   body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: #f3eee2; color: #26261f; }
@@ -84,7 +87,7 @@
         <li>כדי שיופיע תמיד בסרגל הסימניות: בוחרים לשמור ב<b>"סרגל הסימניות"</b> (Bookmarks bar).</li>
       </ol>
     </div>
-    <p class="note">הסמל פותח את המערכת ישירות, עם אותו חשבון Google שכבר מחובר במכשיר.</p>
+    <p class="note">הסמל פותח את המערכת ישירות עם הקישור האישי שלך. אין לשתף אותו או להעביר אותו לאחרים.</p>
     <a class="btn" id="go">כניסה למערכת</a>
   </div>
 </main>
@@ -97,7 +100,7 @@
     ['ios', 'android', 'desktop'].forEach(function (id) {
       if (id !== (ios ? 'ios' : android ? 'android' : 'desktop')) document.getElementById(id).className += ' hidden';
     });
-    document.getElementById('go').href = APP;
+    document.getElementById('go').href = APP_LINK;
     document.getElementById('install').onclick = function () {
       if (!deferred) return;
       deferred.prompt();
